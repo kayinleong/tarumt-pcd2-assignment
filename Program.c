@@ -5,7 +5,6 @@
 #pragma warning(disable:4996)
 
 #define MAX_READ 1024
-#define MAX_RECORDS 1000
 
 typedef struct {
 	char id[6];
@@ -39,13 +38,13 @@ void display_sales_records(SalesRecord* sales_records, int num_records);
 void sales_summary_by_item_code(SalesRecord* sales_records, int num_records);
 void delete_sales_record(SalesRecord* sales_records, int* num_records);
 
-SalesRecord sales_records[MAX_RECORDS];
-int num_records = 0;
-
 int main()
 {
 	char command[3];
+	SalesRecord sales_records[MAX_READ];
+	int num_records = 0;
 
+	load_sales_records(sales_records, &num_records);
 	do {
 		printf(" ____  ____ _________   ____   ____  _____      _______ ____  ____  _______ _________ _________ ____    ____ \n");
 		printf("|_  _||_  _|_   ___  |.'    \\.|_   \\|_   _|    /  ___  |_  _||_  _|/  ___  |  _   _  |_   ___  |_   \\  /   _|\n");
@@ -83,89 +82,90 @@ int main()
 
 		switch (toupper(command[0]))
 		{
-			case 'M':
-				switch (command[1])
-				{
-					case '1':
-						addMember();
-						system("pause");
-						system("cls");
-						break;
-
-					case '2':
-						displayAllMember();
-						system("pause");
-						system("cls");
-						break;
-
-					case '3':
-						searchMember();
-						system("pause");
-						system("cls");
-						break;
-
-					case '4':
-						updateMember();
-						system("pause");
-						system("cls");
-						break;
-
-					case '5':
-						deleteMember();
-						system("pause");
-						system("cls");
-						break;
-
-					case '6':
-						compactMemberFile();
-						system("pause");
-						system("cls");
-						break;
-				}
+		case 'M':
+			switch (command[1])
+			{
+			case '1':
+				addMember();
+				system("pause");
+				system("cls");
 				break;
 
-			case 'S':
-				switch (command[1])
-				{
-					case '1':
-						add_sales_record(sales_records, &num_records);
-						system("pause");
-						system("cls");
-						break;
-
-					case '2':
-						search_sales_record(sales_records, num_records);
-						system("pause");
-						system("cls");
-						break;
-					case '3':
-						modify_sales_record(sales_records, num_records);
-						system("pause");
-						system("cls");
-						break;
-
-					case '4':
-						display_sales_records(sales_records, num_records);
-						system("pause");
-						system("cls");
-						break;
-
-					case '5':
-						sales_summary_by_item_code(sales_records, num_records);
-						system("pause");
-						system("cls");
-						break;
-
-					case '6':
-						delete_sales_record(sales_records, &num_records);
-						system("pause");
-						system("cls");
-						break;
-				}
+			case '2':
+				displayAllMember();
+				system("pause");
+				system("cls");
 				break;
+
+			case '3':
+				searchMember();
+				system("pause");
+				system("cls");
+				break;
+
+			case '4':
+				updateMember();
+				system("pause");
+				system("cls");
+				break;
+
+			case '5':
+				deleteMember();
+				system("pause");
+				system("cls");
+				break;
+
+			case '6':
+				compactMemberFile();
+				system("pause");
+				system("cls");
+				break;
+			}
+			break;
+
+		case 'S':
+
+			switch (command[1])
+			{
+			case '1':
+				add_sales_record(sales_records, &num_records);
+				system("pause");
+				system("cls");
+				break;
+
+			case '2':
+				search_sales_record(sales_records, num_records);
+				system("pause");
+				system("cls");
+				break;
+			case '3':
+				modify_sales_record(sales_records, num_records);
+				system("pause");
+				system("cls");
+				break;
+
+			case '4':
+				display_sales_records(sales_records, num_records);
+				system("pause");
+				system("cls");
+				break;
+
+			case '5':
+				sales_summary_by_item_code(sales_records, num_records);
+				system("pause");
+				system("cls");
+				break;
+
+			case '6':
+				delete_sales_record(sales_records, &num_records);
+				system("pause");
+				system("cls");
+				break;
+			}
+			break;
 		}
 	} while (strcmp(command, "XX") != 0);
-
+	save_sales_records(sales_records, num_records);
 	printf("\nSee you again!\n");
 }
 
@@ -216,7 +216,7 @@ void addMember() {
 		scanf("%s", &member.id);
 	}
 
-	printf("Total Member(s) stored in this session: %d\n", count-1);
+	printf("Total Member(s) stored in this session: %d\n", count - 1);
 
 	fclose(fp);
 }
@@ -299,7 +299,7 @@ void searchMember() {
 	}
 
 	end = clock();
-	cputime = ((double) (end - start)) / CLOCKS_PER_SEC;
+	cputime = ((double)(end - start)) / CLOCKS_PER_SEC;
 
 	if (strcmp(memberTarget.id, memberBuffer.id) == 0 && memberBuffer.isDeleted != 0)
 		printf("%-15s %-15s %-15s +60%-22s\n",
@@ -483,7 +483,7 @@ void compactMemberFile() {
 		exit(-1);
 	}
 
-	for (int i = 0; i < compactedCount; i++) 
+	for (int i = 0; i < compactedCount; i++)
 	{
 		fwrite(&memberArray[i], sizeof(memberArray[i]), 1, writeFP);
 	}
@@ -497,7 +497,7 @@ void compactMemberFile() {
 }
 
 /// <summary>
-/// 
+/// Load the information that save in binary file.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
@@ -511,7 +511,7 @@ void load_sales_records(SalesRecord* sales_records, int* num_records) {
 }
 
 /// <summary>
-/// 
+/// Save the record that add/modify/delete into the binary file.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
@@ -525,12 +525,12 @@ void save_sales_records(SalesRecord* sales_records, int num_records) {
 }
 
 /// <summary>
-/// 
+/// Allows the user to add a new sales record.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
 void add_sales_record(SalesRecord* sales_records, int* num_records) {
-	if (*num_records >= MAX_RECORDS) {
+	if (*num_records >= MAX_READ) {
 		printf("Maximum number of sales records reached!\n");
 		return;
 	}
@@ -553,7 +553,7 @@ void add_sales_record(SalesRecord* sales_records, int* num_records) {
 }
 
 /// <summary>
-/// 
+/// Prompts the user to enter a sales order ID and searches record.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
@@ -574,7 +574,7 @@ void search_sales_record(SalesRecord* sales_records, int num_records) {
 }
 
 /// <summary>
-/// 
+/// Prompts the user to enter a sales order ID and searches for a record with a matching ID and prompts the user to enter new values for each field in the record, and updates the record with the new values or press Enter to keep the same values.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
@@ -657,7 +657,7 @@ void modify_sales_record(SalesRecord* sales_records, int num_records) {
 }
 
 /// <summary>
-/// 
+/// Displays all the sales records and count the total quantity sales and total price sales.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
@@ -682,7 +682,7 @@ void display_sales_records(SalesRecord* sales_records, int num_records) {
 	}
 
 	if (num_records == 0) {
-		printf("No sales records found.\n");
+		printf("\nNo sales records found.\n");
 	}
 	else {
 		printf("\nTotal quantity sales: %d\n", total_quantity);
@@ -691,7 +691,7 @@ void display_sales_records(SalesRecord* sales_records, int num_records) {
 }
 
 /// <summary>
-/// 
+/// Prompts the user to enter an item code and calculates and displays the total sales for that items.
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
@@ -715,7 +715,7 @@ void sales_summary_by_item_code(SalesRecord* sales_records, int num_records) {
 }
 
 /// <summary>
-/// 
+/// Prompts the user to enter a sales order ID and search for matching ID and removes the record from the binary file
 /// </summary>
 /// <param name="sales_records"></param>
 /// <param name="num_records"></param>
